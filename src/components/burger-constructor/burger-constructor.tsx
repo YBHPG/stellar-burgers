@@ -1,45 +1,69 @@
-import { FC, useMemo } from 'react';
+import { useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { useDispatch, useSelector } from '../../services/store';
+import { useNavigate } from 'react-router-dom';
+import { clearOrder, createOrder } from '../../services/slices/orderSlice';
+import { clearConstructor } from '../../services/slices/burgerConstructorSlice';
 
-export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
-  };
+export function BurgerConstructor()
+{
+    const sendAction = useDispatch();
+    const navigator = useNavigate();
 
-  const orderRequest = false;
+    const { bun: topAndBottom, ingredients: innerItems } = useSelector((fullState) => fullState.burgerConstructor);
+    const { order: currentOrder, isLoading: isProcessing } = useSelector((fullState) => fullState.order);
+    const client = useSelector((fullState) => fullState.user);
 
-  const orderModalData = null;
+    const burgerContent = { bun: topAndBottom, ingredients: innerItems };
+    const isOrderPending = isProcessing;
+    const orderPopupData = currentOrder;
 
-  const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
+    function handlePlaceOrder()
+    {
+        if (!client.user)
+        {
+            navigator('/login');
+            return;
+        }
 
-  const price = useMemo(
-    () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
-        (s: number, v: TConstructorIngredient) => s + v.price,
-        0
-      ),
-    [constructorItems]
-  );
+        if (!topAndBottom || isOrderPending)
+        {
+            return;
+        }
 
-  return null;
+        const fullIngredientList = [
+            topAndBottom._id,
+            ...innerItems.map((i) => i._id),
+            topAndBottom._id
+        ];
+        sendAction(createOrder(fullIngredientList));
+    };
 
-  return (
-    <BurgerConstructorUI
-      price={price}
-      orderRequest={orderRequest}
-      constructorItems={constructorItems}
-      orderModalData={orderModalData}
-      onOrderClick={onOrderClick}
-      closeOrderModal={closeOrderModal}
-    />
-  );
+    const onModalCloseHandler = function()
+    {
+        sendAction(clearOrder());
+        sendAction(clearConstructor());
+    };
+
+    const totalCost = useMemo(
+        ()  =>
+            (topAndBottom ? topAndBottom.price * 2 : 0) +
+            innerItems.reduce(
+                (sum: number, item: TConstructorIngredient) => sum + item.price,
+                0
+            ),
+        [topAndBottom, innerItems]
+    );
+
+    return (
+        <BurgerConstructorUI
+            price = {totalCost}
+            orderRequest = {isOrderPending}
+            constructorItems = {burgerContent}
+            orderModalData = {orderPopupData}
+            onOrderClick = {handlePlaceOrder}
+            closeOrderModal = {onModalCloseHandler}
+        />
+    );
 };

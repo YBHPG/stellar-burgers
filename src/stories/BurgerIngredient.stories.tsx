@@ -13,7 +13,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div style={{ width: 'fit-content', margin: 20 }}>
+      <div style = {{ width: 'fit-content', margin: 20 }}>
         <Story />
       </div>
     )

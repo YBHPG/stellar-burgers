@@ -1,14 +1,34 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from '../../services/store';
+import { setCurrentIngredient } from '../../services/slices/ingredientsSlice';
 
 export const IngredientDetails: FC = () => {
-  /** TODO: взять переменную из стора */
-  const ingredientData = null;
+    const sendAction = useDispatch();
+    const { id: paramId } = useParams();
 
-  if (!ingredientData) {
-    return <Preloader />;
-  }
+    const { items: allIngredients, currentIngredient: selectedItem } = useSelector(
+        (globalState) => globalState.ingredients
+    );
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+    useEffect(() => {
+        const hasIngredients = allIngredients.length > 0;
+        if (hasIngredients && paramId) {
+            const matchedItem = allIngredients.find(
+                (entry) => entry._id  ===  paramId
+            );
+
+            if (matchedItem) {
+                sendAction(setCurrentIngredient(matchedItem));
+            }
+        }
+    }, [allIngredients, paramId, sendAction]);
+
+    return selectedItem ? (
+        <IngredientDetailsUI ingredientData = {selectedItem} />
+    ) : (
+        <Preloader />
+    );
 };

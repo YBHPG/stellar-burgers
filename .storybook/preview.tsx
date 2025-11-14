@@ -15,7 +15,7 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <BrowserRouter>
-        <div style={{ padding: 20, width: 'fit-content' }}>
+        <div style = {{ padding: 20, width: 'fit-content' }}>
           <Story />
         </div>
       </BrowserRouter>

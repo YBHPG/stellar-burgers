@@ -4,7 +4,7 @@ export function getCookie(name: string): string | undefined {
       '(?:^|; )' +
         // eslint-disable-next-line no-useless-escape
         name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-        '=([^;]*)'
+        ' = ([^;]*)'
     )
   );
   return matches ? decodeURIComponent(matches[1]) : undefined;
@@ -31,7 +31,7 @@ export function setCookie(
     props.expires = exp.toUTCString();
   }
   value = encodeURIComponent(value);
-  let updatedCookie = name + '=' + value;
+  let updatedCookie = name + ' = ' + value;
   for (const propName in props) {
     updatedCookie += '; ' + propName;
     const propValue = props[propName];

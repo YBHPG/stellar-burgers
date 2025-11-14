@@ -9,8 +9,8 @@ export const ProfileMenuUI: FC<ProfileMenuUIProps> = ({
 }) => (
   <>
     <NavLink
-      to={'/profile'}
-      className={({ isActive }) =>
+      to = {'/profile'}
+      className = {({ isActive })  =>
         `text text_type_main-medium text_color_inactive pt-4 pb-4 ${
           styles.link
         } ${isActive ? styles.link_active : ''}`
@@ -20,8 +20,8 @@ export const ProfileMenuUI: FC<ProfileMenuUIProps> = ({
       Профиль
     </NavLink>
     <NavLink
-      to={'/profile/orders'}
-      className={({ isActive }) =>
+      to = {'/profile/orders'}
+      className = {({ isActive })  =>
         `text text_type_main-medium text_color_inactive pt-4 pb-4 ${
           styles.link
         } ${isActive ? styles.link_active : ''}`
@@ -30,13 +30,13 @@ export const ProfileMenuUI: FC<ProfileMenuUIProps> = ({
       История заказов
     </NavLink>
     <button
-      className={`text text_type_main-medium text_color_inactive pt-4 pb-4 ${styles.button}`}
-      onClick={handleLogout}
+      className = {`text text_type_main-medium text_color_inactive pt-4 pb-4 ${styles.button}`}
+      onClick = {handleLogout}
     >
       Выход
     </button>
-    <p className='pt-20 text text_type_main-default text_color_inactive'>
-      {pathname === '/profile'
+    <p className = 'pt-20 text text_type_main-default text_color_inactive'>
+      {pathname  ===  '/profile'
         ? 'В этом разделе вы можете изменить свои персональные данные'
         : 'В этом разделе вы можете просмотреть свою историю заказов'}
     </p>

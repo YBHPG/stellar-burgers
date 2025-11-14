@@ -1,22 +1,45 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 import { LoginUI } from '@ui-pages';
+import { useDispatch } from '../../services/store';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../services/slices/userSlice';
 
-export const Login: FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export function Login()
+{
+    const [userEmail, setUserEmail] = useState('');
+    const [userPassword, setUserPassword] = useState('');
+    const [feedbackMsg, setFeedbackMsg] = useState('');
 
-  const handleSubmit = (e: SyntheticEvent) => {
-    e.preventDefault();
-  };
+    const sendAction = useDispatch();
+    const navigator = useNavigate();
 
-  return (
-    <LoginUI
-      errorText=''
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
-      handleSubmit={handleSubmit}
-    />
-  );
-};
+    const onFormSubmit = async (evt: SyntheticEvent)  =>
+    {
+        evt.preventDefault();
+
+        try
+        {
+            setFeedbackMsg('');
+            await sendAction(
+                loginUser({ email: userEmail, password: userPassword })
+            ).unwrap();
+            navigator('/');
+        }
+        catch (error)
+        {
+            console.error('Ошибка логина:', error);
+            setFeedbackMsg('Неверный email или пароль');
+        }
+    };
+
+    return (
+        <LoginUI
+            errorText = {feedbackMsg}
+            email = {userEmail}
+            setEmail = {setUserEmail}
+            password = {userPassword}
+            setPassword = {setUserPassword}
+            handleSubmit = {onFormSubmit}
+        />
+    );
+}

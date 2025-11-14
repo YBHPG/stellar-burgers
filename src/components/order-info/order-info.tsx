@@ -1,67 +1,86 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from '../../services/store';
+import { getFeedsByNumber } from '../../services/slices/feedSlice';
 
-export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+export const OrderInfo: FC = ()  =>
+{
+    const sendAction = useDispatch();
+    const { number: orderNumParam } = useParams<{ number: string }>();
 
-  const ingredients: TIngredient[] = [];
+    const orderPayload = useSelector((state) => state.feed.currentOrder);
+    const allIngredients: TIngredient[] = useSelector(
+        (state) => state.ingredients.items
+    );
 
-  /* Готовим данные для отображения */
-  const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+    useEffect(()  =>
+    {
+        if (orderNumParam)
+        {
+            sendAction(getFeedsByNumber(Number(orderNumParam)));
+        }
+    }, [sendAction, orderNumParam]);
 
-    const date = new Date(orderData.createdAt);
-
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
-
-    const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
-        if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
-          if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
-          }
-        } else {
-          acc[item].count++;
+    const processedOrderData = useMemo(()  =>
+    {
+        if (!orderPayload || !allIngredients.length)
+        {
+            return null;
         }
 
-        return acc;
-      },
-      {}
-    );
+        const orderTimestamp = new Date(orderPayload.createdAt);
 
-    const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
-      0
-    );
+        type TGroupedIngredients = {
+            [key: string]: TIngredient & { count: number };
+        };
 
-    return {
-      ...orderData,
-      ingredientsInfo,
-      date,
-      total
-    };
-  }, [orderData, ingredients]);
+        const groupedIngredients = orderPayload.ingredients.reduce(
+            (accumulator: TGroupedIngredients, itemId)  =>
+            {
+                const existingEntry = accumulator[itemId];
 
-  if (!orderInfo) {
-    return <Preloader />;
-  }
+                if (!existingEntry)
+                {
+                    const matchedIngredient = allIngredients.find(
+                        (ing) => ing._id  ===  itemId
+                    );
+                    if (matchedIngredient)
+                    {
+                        accumulator[itemId] = {
+                            ...matchedIngredient,
+                            count: 1
+                        };
+                    }
+                } else
+                {
+                    existingEntry.count++;
+                }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+                return accumulator;
+            },
+            {}
+        );
+
+        const orderTotal = Object.values(groupedIngredients).reduce(
+            (sum, entry) => sum + entry.price * entry.count,
+            0
+        );
+
+        return {
+            ...orderPayload,
+            ingredientsInfo: groupedIngredients,
+            date: orderTimestamp,
+            total: orderTotal
+        };
+    }, [orderPayload, allIngredients]);
+
+    if (!processedOrderData)
+    {
+        return <Preloader />;
+    }
+
+    return <OrderInfoUI orderInfo = {processedOrderData} />;
 };
