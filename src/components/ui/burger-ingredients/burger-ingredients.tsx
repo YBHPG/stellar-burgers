@@ -20,46 +20,46 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
     onTabClick
   }) => (
     <>
-      <section className = {styles.burger_ingredients}>
+      <section className={styles.burger_ingredients}>
         <nav>
-          <ul className = {styles.menu}>
-            <Tab value = 'bun' active = {currentTab  ===  'bun'} onClick = {onTabClick}>
+          <ul className={styles.menu}>
+            <Tab value='bun' active={currentTab === 'bun'} onClick={onTabClick}>
               Булки
             </Tab>
             <Tab
-              value = 'main'
-              active = {currentTab  ===  'main'}
-              onClick = {onTabClick}
+              value='main'
+              active={currentTab === 'main'}
+              onClick={onTabClick}
             >
               Начинки
             </Tab>
             <Tab
-              value = 'sauce'
-              active = {currentTab  ===  'sauce'}
-              onClick = {onTabClick}
+              value='sauce'
+              active={currentTab === 'sauce'}
+              onClick={onTabClick}
             >
               Соусы
             </Tab>
           </ul>
         </nav>
-        <div className = {styles.content}>
+        <div className={styles.content}>
           <IngredientsCategory
-            title = 'Булки'
-            titleRef = {titleBunRef}
-            ingredients = {buns}
-            ref = {bunsRef}
+            title='Булки'
+            titleRef={titleBunRef}
+            ingredients={buns}
+            ref={bunsRef}
           />
           <IngredientsCategory
-            title = 'Начинки'
-            titleRef = {titleMainRef}
-            ingredients = {mains}
-            ref = {mainsRef}
+            title='Начинки'
+            titleRef={titleMainRef}
+            ingredients={mains}
+            ref={mainsRef}
           />
           <IngredientsCategory
-            title = 'Соусы'
-            titleRef = {titleSaucesRef}
-            ingredients = {sauces}
-            ref = {saucesRef}
+            title='Соусы'
+            titleRef={titleSaucesRef}
+            ingredients={sauces}
+            ref={saucesRef}
           />
         </div>
       </section>

@@ -6,29 +6,26 @@ import { useDispatch, useSelector } from '../../services/store';
 import { setCurrentIngredient } from '../../services/slices/ingredientsSlice';
 
 export const IngredientDetails: FC = () => {
-    const sendAction = useDispatch();
-    const { id: paramId } = useParams();
+  const sendAction = useDispatch();
+  const { id: paramId } = useParams();
 
-    const { items: allIngredients, currentIngredient: selectedItem } = useSelector(
-        (globalState) => globalState.ingredients
-    );
+  const { items: allIngredients, currentIngredient: selectedItem } =
+    useSelector((globalState) => globalState.ingredients);
 
-    useEffect(() => {
-        const hasIngredients = allIngredients.length > 0;
-        if (hasIngredients && paramId) {
-            const matchedItem = allIngredients.find(
-                (entry) => entry._id  ===  paramId
-            );
+  useEffect(() => {
+    const hasIngredients = allIngredients.length > 0;
+    if (hasIngredients && paramId) {
+      const matchedItem = allIngredients.find((entry) => entry._id === paramId);
 
-            if (matchedItem) {
-                sendAction(setCurrentIngredient(matchedItem));
-            }
-        }
-    }, [allIngredients, paramId, sendAction]);
+      if (matchedItem) {
+        sendAction(setCurrentIngredient(matchedItem));
+      }
+    }
+  }, [allIngredients, paramId, sendAction]);
 
-    return selectedItem ? (
-        <IngredientDetailsUI ingredientData = {selectedItem} />
-    ) : (
-        <Preloader />
-    );
+  return selectedItem ? (
+    <IngredientDetailsUI ingredientData={selectedItem} />
+  ) : (
+    <Preloader />
+  );
 };

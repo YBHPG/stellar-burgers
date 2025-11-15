@@ -4,50 +4,45 @@ import { useDispatch, useSelector } from '../../services/store';
 import { updateUserThunk } from '../../services/slices/userSlice';
 import { Preloader } from '@ui';
 
-export function Profile()
-{
-    const sendAction = useDispatch();
+export function Profile() {
+  const sendAction = useDispatch();
 
-    const clientData = useSelector((state) => state.user.user);
+  const clientData = useSelector((state) => state.user.user);
 
-    const [fields, setFields] = useState({
-        name: '',
-        email: '',
-        password: ''
+  const [fields, setFields] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
+  useEffect(() => {
+    setFields(function (currentData) {
+      return {
+        ...currentData,
+        name: clientData?.name || '',
+        email: clientData?.email || ''
+      };
     });
+  }, [clientData]);
 
-    useEffect(()  =>
-    {
-        setFields(function(currentData)
-        {
-            return {
-                ...currentData,
-                name: clientData?.name || '',
-                email: clientData?.email || ''
-            };
-        });
-    }, [clientData]);
+  if (!clientData) {
+    return <Preloader />;
+  }
 
-    if (!clientData)
-    {
-        return <Preloader />;
-    }
+  const hasChanges =
+    fields.name !== clientData?.name ||
+    fields.email !== clientData?.email ||
+    !!fields.password;
 
-    const hasChanges  = 
-        fields.name !==  clientData?.name ||
-        fields.email !==  clientData?.email ||
-        !!fields.password;
-
-    const onSave = function(evt: SyntheticEvent)
-    {
-        evt.preventDefault();
-        sendAction(updateUserThunk(fields));
-        setFields({
-            name: clientData?.name || '',
-            email: clientData?.email || '',
-            password: ''
-        });
-    };
+  const onSave = function (evt: SyntheticEvent) {
+    evt.preventDefault();
+    sendAction(updateUserThunk(fields));
+    setFields({
+      name: clientData?.name || '',
+      email: clientData?.email || '',
+      password: ''
+    });
+  };
 
   const onReset = (evt: SyntheticEvent) => {
     evt.preventDefault();

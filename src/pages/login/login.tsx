@@ -4,42 +4,37 @@ import { useDispatch } from '../../services/store';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../services/slices/userSlice';
 
-export function Login()
-{
-    const [userEmail, setUserEmail] = useState('');
-    const [userPassword, setUserPassword] = useState('');
-    const [feedbackMsg, setFeedbackMsg] = useState('');
+export function Login() {
+  const [userEmail, setUserEmail] = useState('');
+  const [userPassword, setUserPassword] = useState('');
+  const [feedbackMsg, setFeedbackMsg] = useState('');
 
-    const sendAction = useDispatch();
-    const navigator = useNavigate();
+  const sendAction = useDispatch();
+  const navigator = useNavigate();
 
-    const onFormSubmit = async (evt: SyntheticEvent)  =>
-    {
-        evt.preventDefault();
+  const onFormSubmit = async (evt: SyntheticEvent) => {
+    evt.preventDefault();
 
-        try
-        {
-            setFeedbackMsg('');
-            await sendAction(
-                loginUser({ email: userEmail, password: userPassword })
-            ).unwrap();
-            navigator('/');
-        }
-        catch (error)
-        {
-            console.error('Ошибка логина:', error);
-            setFeedbackMsg('Неверный email или пароль');
-        }
-    };
+    try {
+      setFeedbackMsg('');
+      await sendAction(
+        loginUser({ email: userEmail, password: userPassword })
+      ).unwrap();
+      navigator('/');
+    } catch (error) {
+      console.error('Ошибка логина:', error);
+      setFeedbackMsg('Неверный email или пароль');
+    }
+  };
 
-    return (
-        <LoginUI
-            errorText = {feedbackMsg}
-            email = {userEmail}
-            setEmail = {setUserEmail}
-            password = {userPassword}
-            setPassword = {setUserPassword}
-            handleSubmit = {onFormSubmit}
-        />
-    );
+  return (
+    <LoginUI
+      errorText={feedbackMsg}
+      email={userEmail}
+      setEmail={setUserEmail}
+      password={userPassword}
+      setPassword={setUserPassword}
+      handleSubmit={onFormSubmit}
+    />
+  );
 }

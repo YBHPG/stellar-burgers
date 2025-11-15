@@ -43,18 +43,23 @@ export const fetchWithRefresh = async <T>(
   endpoint: RequestInfo,
   config: RequestInit
 ) => {
+  const newConfig = {
+    ...config,
+    headers: {
+      ...config.headers,
+      authorization: getCookie('accessToken') || ''
+    }
+  };
   try {
-    const initialResponse = await fetch(endpoint, config);
+    const initialResponse = await fetch(endpoint, newConfig);
     return await validateResponse<T>(initialResponse);
   } catch (error) {
     const isJwtError = (error as { message: string }).message === 'jwt expired';
     if (isJwtError) {
       const newAuthData = await refreshToken();
-      if (config.headers) {
-        (config.headers as { [key: string]: string }).authorization =
-          newAuthData.accessToken;
-      }
-      const retryResponse = await fetch(endpoint, config);
+      (newConfig.headers as { [key: string]: string }).authorization =
+        newAuthData.accessToken;
+      const retryResponse = await fetch(endpoint, newConfig); // Теперь запрос уйдет с обновленным токеном
       return await validateResponse<T>(retryResponse);
     } else {
       return Promise.reject(error);
@@ -92,9 +97,8 @@ export const getOrdersApi = () =>
   fetchWithRefresh<TFeedsResponse>(`${API_BASE_URL}/orders`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json;charset = utf-8',
-      authorization: getCookie('accessToken')
-    } as HeadersInit
+      'Content-Type': 'application/json'
+    }
   }).then((payload) =>
     payload?.success ? payload.orders : Promise.reject(payload)
   );
@@ -108,8 +112,7 @@ export const orderBurgerApi = (ingredientIds: string[]) =>
   fetchWithRefresh<TNewOrderResponse>(`${API_BASE_URL}/orders`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset = utf-8',
-      authorization: getCookie('accessToken')
+      'Content-Type': 'application/json'
     } as HeadersInit,
     body: JSON.stringify({
       ingredients: ingredientIds
@@ -192,21 +195,18 @@ export const resetPasswordApi = (resetData: {
     .then((response) => validateResponse<TServerResponse<{}>>(response))
     .then((payload) => (payload?.success ? payload : Promise.reject(payload)));
 
-type TUserResponse = TServerResponse<{ user: TUser }>;
+export type TUserResponse = TServerResponse<{ user: TUser }>;
 
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${API_BASE_URL}/auth/user`, {
-    headers: {
-      authorization: getCookie('accessToken')
-    } as HeadersInit
+    method: 'GET'
   });
 
 export const updateUserApi = (userData: Partial<TRegisterData>) =>
   fetchWithRefresh<TUserResponse>(`${API_BASE_URL}/auth/user`, {
     method: 'PATCH',
     headers: {
-      'Content-Type': 'application/json;charset = utf-8',
-      authorization: getCookie('accessToken')
+      'Content-Type': 'application/json'
     } as HeadersInit,
     body: JSON.stringify(userData)
   });

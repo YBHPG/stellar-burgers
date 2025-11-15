@@ -14,7 +14,7 @@ const meta = {
   decorators: [
     (Story) => (
       <div
-        style = {{
+        style={{
           width: 'fit-content',
           margin: 20,
           display: 'flex',

@@ -24,10 +24,10 @@ export const ForgotPassword: FC = () => {
 
   return (
     <ForgotPasswordUI
-      errorText = {error?.message}
-      email = {email}
-      setEmail = {setEmail}
-      handleSubmit = {handleSubmit}
+      errorText={error?.message}
+      email={email}
+      setEmail={setEmail}
+      handleSubmit={handleSubmit}
     />
   );
 };

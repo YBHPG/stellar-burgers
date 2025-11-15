@@ -4,20 +4,13 @@ import { ProfileMenuUI } from '@ui';
 import { useDispatch } from '../../services/store';
 import { logoutUser } from '../../services/slices/userSlice';
 
-export function ProfileMenu()
-{
-    const { pathname: activeRoute } = useLocation();
-    const storeDispatch = useDispatch();
+export function ProfileMenu() {
+  const { pathname: activeRoute } = useLocation();
+  const storeDispatch = useDispatch();
 
-    const logoutHandler = ()  =>
-    {
-        storeDispatch(logoutUser());
-    };
+  const logoutHandler = () => {
+    storeDispatch(logoutUser());
+  };
 
-    return (
-        <ProfileMenuUI
-            handleLogout = {logoutHandler}
-            pathname = {activeRoute}
-        />
-    );
+  return <ProfileMenuUI handleLogout={logoutHandler} pathname={activeRoute} />;
 }

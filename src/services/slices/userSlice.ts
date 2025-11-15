@@ -1,8 +1,10 @@
 import {
   getUserApi,
+  TUserResponse,
   loginUserApi,
   logoutApi,
   registerUserApi,
+  fetchWithRefresh,
   TRegisterData,
   updateUserApi
 } from '@api';
@@ -24,21 +26,15 @@ const emptyUserState: UserState = {
   error: null
 };
 
-export const fetchUser = createAsyncThunk('user/fetchUser', async () => {
-  const apiResponse = await getUserApi();
-  console.log(apiResponse);
-  return apiResponse;
-});
-
 export const checkAuth = createAsyncThunk(
   'user/checkAuth',
   async function (_unused, asyncApi) {
-    try {
-      const authResponse = await getUserApi();
-      return authResponse.user;
-    } catch (authError) {
-      return asyncApi.rejectWithValue('Не авторизован');
-    }
+    return fetchWithRefresh<TUserResponse>(
+      `${process.env.BURGER_API_URL}/auth/user`,
+      {
+        method: 'GET'
+      }
+    ).then((data) => data.user);
   }
 );
 
@@ -145,13 +141,13 @@ export const userSlice = createSlice({
       (currentState, incomingAction) => {
         currentState.user = incomingAction.payload;
         currentState.isAuth = true;
-        currentState.isLoading = true;
+        currentState.isLoading = false;
       }
     );
     reducerBuilder.addCase(checkAuth.rejected, (currentState) => {
       currentState.user = null;
       currentState.isAuth = false;
-      currentState.isLoading = true;
+      currentState.isLoading = false;
     });
     reducerBuilder.addCase(logoutUser.fulfilled, (currentState) => {
       currentState.user = null;

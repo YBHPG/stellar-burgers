@@ -4,20 +4,16 @@ import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { getOrdersHistory } from '../../services/slices/orderHistorySlice';
 
-export function ProfileOrders()
-{
-    const sendAction = useDispatch();
+export function ProfileOrders() {
+  const sendAction = useDispatch();
 
-    const userOrders: TOrder[] = useSelector(
-        (globalState) => globalState.orderHistory.orders
-    );
+  const userOrders: TOrder[] = useSelector(
+    (globalState) => globalState.orderHistory.orders
+  );
 
-    useEffect(()  =>
-    {
-        sendAction(getOrdersHistory());
-    }, [sendAction]);
+  useEffect(() => {
+    sendAction(getOrdersHistory());
+  }, [sendAction]);
 
-    return (
-        <ProfileOrdersUI orders = {userOrders} />
-    );
+  return <ProfileOrdersUI orders={userOrders} />;
 }
