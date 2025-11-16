@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { TConstructorIngredient } from '@utils-types';
+import { TConstructorIngredient, TOrder } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
 import { useDispatch, useSelector } from '../../services/store';
 import { useNavigate } from 'react-router-dom';
 import { clearOrder, createOrder } from '../../services/slices/orderSlice';
-import { clearConstructor } from '../../services/slices/burgerConstructorSlice';
 
 export function BurgerConstructor() {
   const sendAction = useDispatch();
@@ -20,7 +19,9 @@ export function BurgerConstructor() {
 
   const burgerContent = { bun: topAndBottom, ingredients: innerItems };
   const isOrderPending = isProcessing;
-  const orderPopupData = currentOrder;
+  const orderPopupData = currentOrder
+    ? ({ number: currentOrder.number } as TOrder)
+    : null;
 
   function handlePlaceOrder() {
     if (!client.user) {
@@ -42,7 +43,6 @@ export function BurgerConstructor() {
 
   const onModalCloseHandler = function () {
     sendAction(clearOrder());
-    sendAction(clearConstructor());
   };
 
   const totalCost = useMemo(

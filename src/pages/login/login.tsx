@@ -1,13 +1,14 @@
 import { SyntheticEvent, useState } from 'react';
 import { LoginUI } from '@ui-pages';
 import { useDispatch } from '../../services/store';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { loginUser } from '../../services/slices/userSlice';
 
 export function Login() {
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const location = useLocation();
 
   const sendAction = useDispatch();
   const navigator = useNavigate();
@@ -20,7 +21,8 @@ export function Login() {
       await sendAction(
         loginUser({ email: userEmail, password: userPassword })
       ).unwrap();
-      navigator('/');
+      const from = location.state?.from || '/';
+      navigator(from, { replace: true });
     } catch (error) {
       console.error('Ошибка логина:', error);
       setFeedbackMsg('Неверный email или пароль');

@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '@api';
 import { TOrder } from '@utils-types';
+import { clearConstructor } from './burgerConstructorSlice';
 
-export type OrderState = {
-  order: TOrder | null;
+export interface OrderState {
+  order: { number: number } | null; // Храним только номер заказа
   isLoading: boolean;
   error: string | null;
-};
+}
 
 const emptyState: OrderState = {
   order: null,
@@ -19,7 +20,8 @@ export const createOrder = createAsyncThunk(
   async function (itemIds: string[], asyncApi) {
     try {
       const response = await orderBurgerApi(itemIds);
-      return response.order;
+      asyncApi.dispatch(clearConstructor());
+      return { number: response.order.number }; // Возвращаем только номер
     } catch (error) {
       return asyncApi.rejectWithValue('Ошибка при оформлении заказа');
     }
