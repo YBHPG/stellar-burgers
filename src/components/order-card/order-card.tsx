@@ -4,54 +4,64 @@ import { useLocation } from 'react-router-dom';
 import { OrderCardProps } from './type';
 import { TIngredient } from '@utils-types';
 import { OrderCardUI } from '../ui/order-card';
+import { useSelector } from '../../services/store';
 
-const maxIngredients = 6;
+const MAX_DISPLAY_ITEMS = 6;
 
-export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
-  const location = useLocation();
+export const OrderCard: FC<OrderCardProps> = memo(function OrderCard({
+  order
+}) {
+  const currentLocation = useLocation();
 
-  /** TODO: взять переменную из стора */
-  const ingredients: TIngredient[] = [];
+  const allIngredients: TIngredient[] = useSelector(
+    (globalState) => globalState.ingredients.items
+  );
 
-  const orderInfo = useMemo(() => {
-    if (!ingredients.length) return null;
+  const processedOrderData = useMemo(() => {
+    if (!allIngredients.length) {
+      return null;
+    }
 
-    const ingredientsInfo = order.ingredients.reduce(
-      (acc: TIngredient[], item: string) => {
-        const ingredient = ingredients.find((ing) => ing._id === item);
-        if (ingredient) return [...acc, ingredient];
-        return acc;
+    const hydratedIngredients = order.ingredients.reduce(
+      (list: TIngredient[], id: string) => {
+        const matchedIngredient = allIngredients.find((ing) => ing._id === id);
+        if (matchedIngredient) {
+          list.push(matchedIngredient);
+        }
+        return list;
       },
       []
     );
 
-    const total = ingredientsInfo.reduce((acc, item) => acc + item.price, 0);
+    const orderTotal = hydratedIngredients.reduce(
+      (sum, entry) => sum + entry.price,
+      0
+    );
 
-    const ingredientsToShow = ingredientsInfo.slice(0, maxIngredients);
+    const displayIngredients = hydratedIngredients.slice(0, MAX_DISPLAY_ITEMS);
 
-    const remains =
-      ingredientsInfo.length > maxIngredients
-        ? ingredientsInfo.length - maxIngredients
+    const overflowCount =
+      hydratedIngredients.length > MAX_DISPLAY_ITEMS
+        ? hydratedIngredients.length - MAX_DISPLAY_ITEMS
         : 0;
 
-    const date = new Date(order.createdAt);
+    const orderTimestamp = new Date(order.createdAt);
+
     return {
       ...order,
-      ingredientsInfo,
-      ingredientsToShow,
-      remains,
-      total,
-      date
+      ingredientsInfo: hydratedIngredients,
+      ingredientsToShow: displayIngredients,
+      remains: overflowCount,
+      total: orderTotal,
+      date: orderTimestamp
     };
-  }, [order, ingredients]);
+  }, [order, allIngredients]);
 
-  if (!orderInfo) return null;
-
-  return (
+  return processedOrderData ? (
     <OrderCardUI
-      orderInfo={orderInfo}
-      maxIngredients={maxIngredients}
-      locationState={{ background: location }}
+      orderInfo={processedOrderData}
+      maxIngredients={MAX_DISPLAY_ITEMS}
+      locationState={{ background: currentLocation }}
     />
-  );
+  ) : null;
 });

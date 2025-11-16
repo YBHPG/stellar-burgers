@@ -1,61 +1,72 @@
 import { ProfileUI } from '@ui-pages';
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { updateUserThunk } from '../../services/slices/userSlice';
+import { Preloader } from '@ui';
 
-export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
-  const user = {
+export function Profile() {
+  const sendAction = useDispatch();
+
+  const clientData = useSelector((state) => state.user.user);
+
+  const [fields, setFields] = useState({
     name: '',
-    email: ''
-  };
-
-  const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    email: '',
     password: ''
   });
 
   useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
-  }, [user]);
+    setFields(function (currentData) {
+      return {
+        ...currentData,
+        name: clientData?.name || '',
+        email: clientData?.email || ''
+      };
+    });
+  }, [clientData]);
 
-  const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
-    !!formValue.password;
+  if (!clientData) {
+    return <Preloader />;
+  }
 
-  const handleSubmit = (e: SyntheticEvent) => {
-    e.preventDefault();
-  };
+  const hasChanges =
+    fields.name !== clientData?.name ||
+    fields.email !== clientData?.email ||
+    !!fields.password;
 
-  const handleCancel = (e: SyntheticEvent) => {
-    e.preventDefault();
-    setFormValue({
-      name: user.name,
-      email: user.email,
+  const onSave = function (evt: SyntheticEvent) {
+    evt.preventDefault();
+    sendAction(updateUserThunk(fields));
+    setFields({
+      name: clientData?.name || '',
+      email: clientData?.email || '',
       password: ''
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }));
+  const onReset = (evt: SyntheticEvent) => {
+    evt.preventDefault();
+    setFields({
+      name: clientData?.name || '',
+      email: clientData?.email || '',
+      password: ''
+    });
   };
+
+  function onFieldChange(evt: React.ChangeEvent<HTMLInputElement>) {
+    setFields((currentData) => ({
+      ...currentData,
+      [evt.target.name]: evt.target.value
+    }));
+  }
 
   return (
     <ProfileUI
-      formValue={formValue}
-      isFormChanged={isFormChanged}
-      handleCancel={handleCancel}
-      handleSubmit={handleSubmit}
-      handleInputChange={handleInputChange}
+      formValue={fields}
+      isFormChanged={hasChanges}
+      handleCancel={onReset}
+      handleSubmit={onSave}
+      handleInputChange={onFieldChange}
     />
   );
-
-  return null;
-};
+}
